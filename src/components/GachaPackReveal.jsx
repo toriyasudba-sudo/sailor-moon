@@ -1,28 +1,33 @@
 import React, { useState } from 'react';
+import { Sprite } from './SpriteSheet';
 
-const mockOpenPack = () => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve([
-        { id: 'moon_holo', warrior: 'moon', rarity: 'holo', isDupe: false },
-        { id: 'mars_rare', warrior: 'mars', rarity: 'rare', isDupe: true },
-        { id: 'mercury_common', warrior: 'mercury', rarity: 'common', isDupe: false }
-      ]);
-    }, 800);
-  });
-};
+const WARRIORS = [
+  { key: 'card_moon', title: 'Сейлор Мун', rarity: 'holo' },
+  { key: 'card_mars', title: 'Сейлор Марс', rarity: 'rare' },
+  { key: 'card_mercury', title: 'Сейлор Меркурий', rarity: 'common' },
+  { key: 'card_jupiter', title: 'Сейлор Юпитер', rarity: 'rare' },
+  { key: 'card_venus', title: 'Сейлор Венера', rarity: 'holo' },
+];
 
-export const GachaPackReveal = ({ balance = 150, onClose }) => {
+export const GachaPackReveal = ({ balance = 150, onSpend, onClose }) => {
   const [step, setStep] = useState('idle');
   const [cards, setCards] = useState([]);
   const [flippedIndex, setFlippedIndex] = useState([]);
 
-  const handleBuyPack = async () => {
+  const handleBuyPack = () => {
     if (balance < 100) return;
+    if (onSpend) onSpend();
     setStep('opening');
-    const drawnCards = await mockOpenPack();
-    setCards(drawnCards);
-    setStep('revealed');
+
+    setTimeout(() => {
+      // Выбираем 3 случайные карточки из 5 воинов
+      const picked = Array.from({ length: 3 }, () => {
+        const w = WARRIORS[Math.floor(Math.random() * WARRIORS.length)];
+        return { ...w, isDupe: Math.random() < 0.35 };
+      });
+      setCards(picked);
+      setStep('revealed');
+    }, 700);
   };
 
   const handleFlip = (index) => {
@@ -32,35 +37,33 @@ export const GachaPackReveal = ({ balance = 150, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900/90 z-50 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-indigo-950/90 z-50 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
       
       {step !== 'revealed' && (
         <div className="flex flex-col items-center">
-          <div className={`w-48 h-64 mb-8 transition-transform duration-300 ${step === 'opening' ? 'animate-pulse scale-110' : ''}`}>
-            <div className="w-full h-full bg-indigo-500 rounded-xl border-4 border-indigo-300 flex items-center justify-center shadow-[0_0_40px_rgba(99,102,241,0.4)] relative overflow-hidden">
-               <span className="text-6xl absolute z-10">🌙</span>
-               <div className="text-xs text-white/50 mt-20 font-mono">card_pack.png</div>
-            </div>
+          <div className={`w-56 h-56 mb-6 bg-[#dcd3f8] rounded-3xl p-4 flex items-center justify-center shadow-[0_0_40px_rgba(236,72,153,0.4)] border-2 border-pink-300 transition-transform duration-300 ${step === 'opening' ? 'animate-bounce scale-110' : ''}`}>
+            <Sprite name="card_pack" className="w-44 h-44" />
           </div>
 
           <button 
             onClick={handleBuyPack}
             disabled={step === 'opening' || balance < 100}
-            className="bg-white text-indigo-900 px-8 py-4 rounded-full font-bold text-lg shadow-lg active:scale-95 transition-all disabled:opacity-50"
+            className="bg-gradient-to-r from-pink-500 to-indigo-500 text-white px-8 py-4 rounded-full font-extrabold text-base shadow-lg active:scale-95 transition-all disabled:opacity-50"
           >
-            {step === 'opening' ? 'Трансформация...' : 'Открыть за 100 🌟'}
+            {step === 'opening' ? 'Лунная призма, откройся...' : 'Открыть бустер за 100 🌟'}
           </button>
-          <p className="text-white/60 mt-4 text-sm">Ваш баланс: {balance} 🌟</p>
+          <p className="text-pink-200 mt-3 text-xs font-semibold">Твой баланс: {balance} 🌟</p>
+          <button onClick={onClose} className="mt-6 text-white/50 text-xs underline">Вернуться к миссиям</button>
         </div>
       )}
 
       {step === 'revealed' && (
         <div className="w-full max-w-md flex flex-col items-center">
-          <h2 className="text-white text-2xl font-bold mb-8 text-center animate-fade-in">
-            Тапни, чтобы открыть!
+          <h2 className="text-white text-xl font-extrabold mb-6 text-center">
+            Тапни по картам, чтобы перевернуть! ✨
           </h2>
           
-          <div className="flex justify-center gap-3 w-full perspective-1000">
+          <div className="flex justify-center gap-3 w-full">
             {cards.map((card, idx) => {
               const isFlipped = flippedIndex.includes(idx);
               
@@ -68,23 +71,22 @@ export const GachaPackReveal = ({ balance = 150, onClose }) => {
                 <div 
                   key={idx} 
                   onClick={() => handleFlip(idx)}
-                  className={`relative w-28 h-40 cursor-pointer transition-all duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : 'hover:-translate-y-2'}`}
+                  className="relative w-28 h-44 cursor-pointer active:scale-95 transition-all"
                 >
-                  <div className={`absolute inset-0 w-full h-full rounded-xl flex flex-col items-center justify-center backface-hidden bg-gray-100 border-2 ${card.rarity === 'holo' ? 'border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.6)]' : card.rarity === 'rare' ? 'border-purple-400' : 'border-gray-300'}`}
-                       style={{ transform: 'rotateY(180deg)' }}>
-                    <span className="text-xs font-mono text-gray-500 p-2 text-center">
-                      card_{card.warrior}_{card.rarity}.png
-                    </span>
-                    {card.isDupe && (
-                      <span className="absolute -bottom-3 bg-white text-xs px-2 py-1 rounded-full shadow-sm text-gray-800 border border-gray-100">
-                        Дубль (+🌟)
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="absolute inset-0 w-full h-full bg-indigo-600 rounded-xl border-2 border-indigo-400 flex items-center justify-center backface-hidden shadow-lg">
-                    <span className="text-4xl text-indigo-300 opacity-50">🌙</span>
-                  </div>
+                  {isFlipped ? (
+                    <div className="w-full h-full rounded-2xl bg-[#dcd3f8] p-1.5 flex flex-col items-center justify-between border-2 border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.5)]">
+                      <Sprite name={card.key} className="w-full h-full rounded-xl" />
+                      {card.isDupe && (
+                        <span className=" -mt-3 bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                          Дубль +20🌟
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="w-full h-full rounded-2xl bg-[#dcd3f8] p-1.5 border-2 border-indigo-300 shadow-lg flex items-center justify-center">
+                      <Sprite name="card_back" className="w-full h-full rounded-xl" />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -93,9 +95,9 @@ export const GachaPackReveal = ({ balance = 150, onClose }) => {
           {flippedIndex.length === 3 && (
             <button 
               onClick={onClose}
-              className="mt-12 text-white/80 underline decoration-white/30 hover:text-white transition-colors"
+              className="mt-10 bg-white text-indigo-950 font-extrabold px-6 py-3 rounded-full shadow-lg active:scale-95 transition-all"
             >
-              Забрать в коллекцию
+              Забрать в коллекцию 💖
             </button>
           )}
         </div>
