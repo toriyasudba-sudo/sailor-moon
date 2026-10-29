@@ -31,7 +31,6 @@ export const HeroEnergySlider = ({ energy = 50, setEnergy, onApply }) => {
         <h2 className="text-4xl font-black text-purple-950 tracking-tight mb-1">{energy}%</h2>
         <p className="text-sm font-extrabold text-pink-600 mb-3">«{currentText}»</p>
         
-        {/* Плашка объяснения: ЗАЧЕМ нужна эта энергия */}
         <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-2xl p-3 text-xs font-bold text-purple-900 mb-4">
           {getEffectDescription(energy)}
         </div>
