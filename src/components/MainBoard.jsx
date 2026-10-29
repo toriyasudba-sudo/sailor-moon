@@ -23,7 +23,7 @@ const LunaAvatar = ({ state, onPet }) => {
   );
 };
 
-export const MainBoard = ({ seeds = 150, setSeeds }) => {
+export const MainBoard = ({ seeds = 150, setSeeds, energy = 50, onGoEnergy }) => {
   const [mascotState, setMascotState] = useState('idle');
   const [mascotMessage, setMascotMessage] = useState('Подъём, воин! Впиши миссию или покорми меня печенькой 🌙');
   const [hunger, setHunger] = useState(70);
@@ -40,6 +40,9 @@ export const MainBoard = ({ seeds = 150, setSeeds }) => {
     { id: 2, title: 'Погладить и покормить Луну', priority: 'medium', category: 'home', status: 'today' },
     { id: 3, title: 'Разобрать идеи в голове', priority: 'boss', category: 'work', status: 'backlog' }
   ]);
+
+  const isLowEnergy = energy <= 30;
+  const isHighEnergy = energy >= 80;
 
   const handleAddTask = (e) => {
     e.preventDefault();
@@ -63,18 +66,24 @@ export const MainBoard = ({ seeds = 150, setSeeds }) => {
 
   const handleCompleteTask = (task) => {
     setTasks(prev => prev.filter(t => t.id !== task.id));
-    const reward = task.priority === 'boss' ? 40 : task.priority === 'high' ? 20 : task.priority === 'medium' ? 10 : 5;
+    const base = task.priority === 'boss' ? 40 : task.priority === 'high' ? 20 : task.priority === 'medium' ? 10 : 5;
+    const reward = isLowEnergy ? Math.round(base * 1.5) : base;
+
     if (setSeeds) setSeeds(prev => prev + reward);
     setHunger(prev => Math.min(100, prev + 10));
     setMood(prev => Math.min(100, prev + 15));
     setMascotState('happy');
-    setMascotMessage(`Вот это другое дело! +${reward} 🌟 семян, не трать всё на печеньки.`);
+    setMascotMessage(
+      isLowEnergy 
+        ? `Героизм через «не хочу»! +${reward} 🌙 (бонус ×1.5 за низкую энергию!)` 
+        : `Вот это другое дело! +${reward} 🌙 семян, не трать всё на печеньки.`
+    );
   };
 
   const handleFeedLuna = () => {
     if (seeds < 15) {
       setMascotState('facepalm');
-      setMascotMessage('Не хватает семян на печеньку (нужно 15 🌟). Закрой хотя бы одну задачу!');
+      setMascotMessage('Не хватает семян на печеньку (нужно 15 🌙). Закрой хотя бы одну задачу!');
       return;
     }
     if (setSeeds) setSeeds(prev => prev - 15);
@@ -114,6 +123,15 @@ export const MainBoard = ({ seeds = 150, setSeeds }) => {
           <span className="text-lg">💖</span>
           <span className="text-xs font-extrabold text-pink-700">Серия: {streak} дн.</span>
         </div>
+
+        {/* Индикатор текущей энергии */}
+        <button 
+          onClick={onGoEnergy}
+          className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-white/80 border border-pink-200 text-purple-800 shadow-sm active:scale-95"
+        >
+          ⚡ Энергия: {energy}% {isLowEnergy ? '(×1.5 🌙)' : isHighEnergy ? '🔥' : ''}
+        </button>
+
         <div className="flex items-center gap-1.5 bg-gradient-to-r from-pink-100 to-purple-100 px-3.5 py-1 rounded-full border border-white shadow-inner">
           <span className="text-sm">🌙</span>
           <span className="text-sm font-black text-purple-900">{seeds}</span>
@@ -172,6 +190,26 @@ export const MainBoard = ({ seeds = 150, setSeeds }) => {
           «{mascotMessage}»
         </div>
       </div>
+
+      {/* СДВГ-БЛОК МИКРОШАГОВ (включается, если на вкладке Энергии выбрано <= 30%) */}
+      {isLowEnergy && (
+        <div className="w-full max-w-md bg-pink-100/90 border-2 border-white rounded-3xl p-3.5 mb-5 shadow-sm">
+          <div className="text-xs font-black text-pink-800 mb-2">
+            🫂 Режим «Лужа слёз» (Энергия {energy}% — все награды ×1.5!): начни с микро-шага в 1 тап:
+          </div>
+          <div className="flex gap-1.5 flex-wrap">
+            {['💧 Выпить воды', '🧘‍♀️ Выдохнуть 3 раза', '🍵 Глоток чая'].map((micro, i) => (
+              <button
+                key={i}
+                onClick={() => handleCompleteTask({ id: `m_${Date.now()}_${i}`, priority: 'low' })}
+                className="bg-white text-purple-900 text-[11px] font-extrabold px-3 py-1.5 rounded-xl shadow-sm border border-pink-200 active:scale-95"
+              >
+                {micro} (+8🌙)
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 2. ПОЛЕ ВВОДА МИССИЙ */}
       <form onSubmit={handleAddTask} className="w-full max-w-md bg-white/70 backdrop-blur-md p-3.5 rounded-3xl shadow-[0_8px_25px_rgba(236,72,153,0.15)] border-2 border-white mb-5">
@@ -257,7 +295,7 @@ export const MainBoard = ({ seeds = 150, setSeeds }) => {
                 <div>
                   <div className="font-bold text-sm text-purple-950">{task.title}</div>
                   <div className="text-[11px] font-semibold text-purple-500 flex items-center gap-2 mt-0.5">
-                    <span>Сила: {ICONS[task.priority]}</span>
+                    <span>Сила: {ICONS[task.priority]} {isLowEnergy && ' (×1.5 🌙)'}</span>
                     {boardTab === 'backlog' && (
                       <button 
                         onClick={() => setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: 'today' } : t))}
