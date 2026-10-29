@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ENERGY_TEXTS, ASSET_MAP } from '../constants';
+import { ENERGY_TEXTS } from '../constants';
+import { Sprite } from './SpriteSheet';
 
 const getHeroAssetKey = (level) => {
   if (level <= 20) return 'hero_e1_puddle';
@@ -23,31 +24,19 @@ export const HeroEnergySlider = ({ onEnergyConfirm }) => {
   const currentText = ENERGY_TEXTS[energy];
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 w-full max-w-md mx-auto bg-white rounded-3xl shadow-sm border border-gray-100 mt-8">
+    <div className="flex flex-col items-center justify-center p-6 w-full max-w-md mx-auto bg-white rounded-3xl shadow-sm border border-pink-100 mt-6">
       
-      <div className="relative w-56 h-56 flex items-center justify-center bg-gray-50 rounded-2xl mb-8 overflow-hidden transition-colors duration-300">
-        <img 
-          src={ASSET_MAP.hero[assetKey]} 
-          alt={currentText} 
-          className="w-48 h-48 object-contain"
-          onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
-        />
-        <div className="hidden flex-col items-center gap-2">
-          <span className="text-4xl">
-            {energy <= 20 ? '😭' : energy <= 40 ? '🥱' : energy <= 60 ? '😐' : energy <= 80 ? '😤' : '✨'}
-          </span>
-          <span className="text-xs text-gray-400 font-mono bg-gray-200 px-2 py-1 rounded">
-            {assetKey}.png
-          </span>
-        </div>
+      {/* Вырезанный арт Усаги из твоего листа */}
+      <div className="relative w-56 h-56 flex items-center justify-center bg-[#dcd3f8] rounded-3xl mb-6 overflow-hidden shadow-inner border-2 border-indigo-100">
+        <Sprite name={assetKey} className="w-48 h-48 transition-all duration-300" />
       </div>
 
-      <div className="text-center w-full min-h-[80px] flex flex-col justify-start">
-        <h2 className="text-4xl font-bold text-gray-900 tracking-tight mb-2">{energy}%</h2>
-        <p className="text-base font-medium text-gray-500 transition-all duration-300">{currentText}</p>
+      <div className="text-center w-full min-h-[72px] flex flex-col justify-start">
+        <h2 className="text-4xl font-extrabold text-indigo-950 tracking-tight mb-1">{energy}%</h2>
+        <p className="text-sm font-semibold text-pink-600 transition-all duration-300">«{currentText}»</p>
       </div>
 
-      <div className="w-full mt-4">
+      <div className="w-full mt-3">
         <input
           type="range"
           min="10"
@@ -59,13 +48,13 @@ export const HeroEnergySlider = ({ onEnergyConfirm }) => {
           onMouseUp={() => setIsDragging(false)}
           onTouchStart={() => setIsDragging(true)}
           onTouchEnd={() => setIsDragging(false)}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
+          className="w-full h-2.5 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-pink-500 focus:outline-none"
         />
         
-        <div className="flex justify-between w-full mt-3 text-xs font-semibold text-gray-400">
-          <span>10%</span>
-          <span>50%</span>
-          <span>100%</span>
+        <div className="flex justify-between w-full mt-2 text-xs font-bold text-gray-400">
+          <span>😭 10%</span>
+          <span>😐 50%</span>
+          <span>✨ 100%</span>
         </div>
       </div>
     </div>
