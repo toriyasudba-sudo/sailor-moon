@@ -3,21 +3,18 @@ import sheetUrl from '../sheet.jpg';
 import cardsUrl from '../cards.png';
 
 const SPRITES = {
-  // 1. Усаги (5 уровней энергии)
   hero_e1_puddle:    { x: 2.5,  y: 2.0, w: 17.0, h: 25.0 },
   hero_e2_sleepy:    { x: 22.0, y: 2.0, w: 17.0, h: 25.0 },
   hero_e3_meh:       { x: 41.5, y: 2.0, w: 17.0, h: 25.0 },
   hero_e4_ready:     { x: 60.8, y: 2.0, w: 17.0, h: 25.0 },
   hero_e5_transform: { x: 80.0, y: 2.0, w: 17.8, h: 25.0 },
 
-  // 2. Кошка Луна (чистая, без текста сверху!)
   mascot_idle:       { x: 3.8,  y: 38.8, w: 14.5, h: 23.2 },
   mascot_happy:      { x: 23.0, y: 38.8, w: 14.5, h: 23.2 },
   mascot_facepalm:   { x: 42.0, y: 38.8, w: 14.5, h: 23.2 },
   mascot_sigh:       { x: 61.4, y: 38.8, w: 14.5, h: 23.2 },
   mascot_sleep:      { x: 79.8, y: 39.5, w: 17.0, h: 22.5 },
 
-  // 3. Бустер и рубашка
   card_back:         { x: 45.9, y: 70.0, w: 7.4,  h: 22.4 },
   card_pack:         { x: 54.5, y: 69.5, w: 14.0, h: 23.5 },
 };
@@ -41,8 +38,8 @@ export const Sprite = ({ name, className = '' }) => {
   );
 };
 
-// Выверенные координаты 32 карточек (чтобы не цеплялись соседние карты)
-const COL_X = [1.3, 13.4, 25.55, 37.65, 51.35, 63.45, 75.55, 87.68];
+// Точно откалиброванные колонки для твоих 32 карт
+const COL_X = [1.8, 14.0, 26.2, 38.4, 52.0, 64.2, 76.4, 88.5];
 const ROW_Y = [2.2, 26.8, 51.4, 76.0];
 const CARD_W = 11.0;
 const CARD_H = 21.8;
