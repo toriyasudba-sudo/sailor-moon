@@ -8,8 +8,9 @@ export const App = () => {
   const [activeTab, setActiveTab] = useState('tasks');
   const [tgUser, setTgUser] = useState(null);
   const [lang, setLang] = useState('ru');
-  const [seeds, setSeeds] = useState(300); // Даем 300 семян на старте, чтобы сразу пооткрывать паки!
-  const [collectedIds, setCollectedIds] = useState(['c_0_0', 'c_3_2']); // Сейлор Мун и Луна открыты со старта
+  const [seeds, setSeeds] = useState(300);
+  const [energy, setEnergy] = useState(50);
+  const [collectedIds, setCollectedIds] = useState(['c_0_0', 'c_3_2']);
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
@@ -38,7 +39,6 @@ export const App = () => {
         background: 'linear-gradient(135deg, #ffd6ec 0%, #e8d5ff 35%, #c9eaff 70%, #ffd6ec 100%)'
       }}
     >
-      {/* Декоративные блики и полумесяцы на фоне как на референсе */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
         <div className="absolute -top-10 -left-10 w-60 h-60 bg-pink-300/40 rounded-full blur-3xl" />
         <div className="absolute top-1/3 -right-10 w-64 h-64 bg-sky-300/40 rounded-full blur-3xl" />
@@ -50,12 +50,23 @@ export const App = () => {
 
       <main className="flex-1 overflow-y-auto pb-20 relative z-10">
         {activeTab === 'tasks' && (
-          <MainBoard user={tgUser} lang={lang} seeds={seeds} setSeeds={setSeeds} />
+          <MainBoard 
+            user={tgUser} 
+            lang={lang} 
+            seeds={seeds} 
+            setSeeds={setSeeds} 
+            energy={energy}
+            onGoEnergy={() => setActiveTab('energy')}
+          />
         )}
         
         {activeTab === 'energy' && (
           <div className="flex items-center justify-center min-h-full px-4">
-            <HeroEnergySlider onEnergyConfirm={(val) => console.log('Энергия:', val)} />
+            <HeroEnergySlider 
+              energy={energy} 
+              setEnergy={setEnergy} 
+              onApply={() => setActiveTab('tasks')} 
+            />
           </div>
         )}
         
